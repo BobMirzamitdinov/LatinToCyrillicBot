@@ -1,14 +1,20 @@
-package org.example;
+import java.util.Scanner;
 
 public class LatinToCyrillicBot
 {
 
     public static void main(String[] args) {
-        String inputString = "Salom";
+
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter words in Latin: ");
+
+        String inputString = scanner.nextLine();
 
         String convertedString = replaceLatinToCyrillic(inputString);
-        System.out.println("Original String: " + inputString);
-        System.out.println("Converted String: " + convertedString);
+        System.out.println(convertedString);
+
+        scanner.close();
     }
 
     public static String replaceLatinToCyrillic(String inputString) {
