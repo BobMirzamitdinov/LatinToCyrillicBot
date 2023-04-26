@@ -1,3 +1,5 @@
+package org.example;
+
 import java.util.Scanner;
 
 public class LatinToCyrillicBot
@@ -7,7 +9,7 @@ public class LatinToCyrillicBot
 
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Enter words in Latin: ");
+        System.out.print("Enter words in Latin:\n");
 
         String inputString = scanner.nextLine();
 
