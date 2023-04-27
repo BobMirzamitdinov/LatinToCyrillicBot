@@ -1,46 +1,66 @@
 package org.example;
 
-import java.util.Scanner;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-public class LatinToCyrillicBot
-{
+import java.util.HashMap;
+import java.util.Map;
 
-    public static void main(String[] args) {
+public class LatinToCyrillicBot extends TelegramLongPollingBot {
+    private String botToken;
 
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Enter words in Latin:\n");
-
-        String inputString = scanner.nextLine();
-
-        String convertedString = replaceLatinToCyrillic(inputString);
-        System.out.println(convertedString);
-
-        scanner.close();
+    public LatinToCyrillicBot(String botToken) {
+        this.botToken = botToken;
     }
 
-    public static String replaceLatinToCyrillic(String inputString) {
-        if (inputString == null || inputString.isEmpty()) {
-            return inputString;
+    @Override
+    public String getBotToken() {
+        return botToken;
+    }
+
+    @Override
+    public void onUpdateReceived(Update update) {
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            Message message = update.getMessage();
+            String text = message.getText();
+            String convertedText = latinToCyrillic(text);
+
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(message.getChatId());
+            sendMessage.setText(convertedText);
+
+            try {
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
         }
+    }
 
-        String latinChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        String cyrillicChars = "АБCДЕФГҲИЖКЛМНОПҚРСТУВWХЙЗабcдефгҳижклмнопқрстувwхйз";
+    private String latinToCyrillic(String text) {
+        Map<Character, Character> conversionMap = new HashMap<>();
+        // Add Latin-Cyrillic character mappings
+        conversionMap.put('a', 'а');
+        conversionMap.put('b', 'б');
+        // ... Add other characters here
 
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for (int i = 0; i < inputString.length(); i++) {
-            char currentChar = inputString.charAt(i);
-            int latinIndex = latinChars.indexOf(currentChar);
-
-            if (latinIndex != -1) {
-                stringBuilder.append(cyrillicChars.charAt(latinIndex));
+        StringBuilder convertedText = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            Character cyrillicChar = conversionMap.get(Character.toLowerCase(c));
+            if (cyrillicChar != null) {
+                if (Character.isUpperCase(c)) {
+                    convertedText.append(Character.toUpperCase(cyrillicChar));
+                } else {
+                    convertedText.append(cyrillicChar);
+                }
             } else {
-                stringBuilder.append(currentChar);
+                convertedText.append(c);
             }
         }
 
-        return stringBuilder.toString();
+        return convertedText.toString();
     }
 }
-
